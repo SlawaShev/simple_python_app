@@ -1,9 +1,11 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
+import http.server
+import socketserver
 import MySQLdb
 
 #open database connection
-db = MySQLdb.connect("localhost","demouser","demopassword","firstDB")
+db = MySQLdb.connect("app_db","dbadmin","password","app_db")
 
 #prepare cursor object using cursor() method
 cursor = db.cursor()
@@ -13,7 +15,7 @@ cursor.execute("SELECT VERSION()")
 
 #fetch a single raw using fetchone() method
 data = cursor.fetchone()
-print "Database version : %s " % data
+print("Database version : " + str(data))
 
 #disconnect from server
 db.close()
