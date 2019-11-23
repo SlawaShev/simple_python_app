@@ -5,41 +5,66 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 
 app_server_ipv4 = "192.168.122.144" 
-app_server_port = "8080"
+app_server_port = "80"
 app_db_ipv4 = "127.0.0.1"
-authorized_ipv4 = []
+
+class case_no_file(object):
+    '''File or directory does not exist.'''
+
+    def test(self, handler):
+        return not os.path.exists(handler.full_path)
+
+    def act(self, handler):
+        raise ServerException("'{0}' not found".format(self.path))
+
+
+class case_existing_file(object):
+    '''File exists'''
+
+    def test(self, handler):
+        return os.path.isfile(handler.full_path)
+
+    def act(self, handler):
+        handler.handle_file(handler.full_path)
+
+            
+class case_always_fail(object):
+    '''Base case if nothing else worked.'''
+
+    def test(self, handler):
+        return True
+
+    def act(self, handler):
+        raise ServerExceptions("Unknown object '{0}'".format(handler.path))
+
 
 # HTTPRequestHandler class
 class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
+    
+    Cases = [case_no_file(), case_existing_file(), case_always_fail()]
 
     # POST
     #def do_POST(self):
 
 
     # GET
-    
     def do_GET(self):
         try:
             # Figure out what exactly is being requested.
-            full_path = os.getcwd() + self.path
+            self.full_path = os.getcwd() + self.path
 
-            # It doesn't exist...
-            if not os.path.exists(full_path):
-                raise ServerException("'{0}' not found".format(self.path))
-
-            # ...it's a file...
-            elif os.path.isfile(full_path):
-                self.handle_file(full_path)
-
-            # ...it's something we don't handle.
-            else:
-                raise ServerException("Unknown object '{0}'".format(self.path))
-
+            # Figure out how to handle it.
+            for case in self.Cases:
+                handler = case
+                if handler.test(self):
+                    handler.act(self)
+                    break
         # Handle errors.
         except Exception as msg:
             self.handle_error(msg)
         
-        # Function for handling of file. It sends file as response.
+       
+    # Function for handling of file. It sends file as response.
     def handle_file(self, full_path):
         try:
             with open(full_path, 'rb') as reader:
@@ -70,6 +95,7 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(content)))
         self.end_headers()
         self.wfile.write(content)
+
 
 
 #        # Send response status code
