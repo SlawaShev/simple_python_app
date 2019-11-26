@@ -1,47 +1,18 @@
 #!/usr/bin/python3
 
-#import MySQLdb
+from classes import *
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 
-app_server_ipv4 = "192.168.122.144" 
+app_server_ipv4 = "192.168.0.111" 
 app_server_port = "80"
 app_db_ipv4 = "127.0.0.1"
-
-class case_no_file(object):
-    '''File or directory does not exist.'''
-
-    def test(self, handler):
-        return not os.path.exists(handler.full_path)
-
-    def act(self, handler):
-        raise ServerException("'{0}' not found".format(self.path))
-
-
-class case_existing_file(object):
-    '''File exists'''
-
-    def test(self, handler):
-        return os.path.isfile(handler.full_path)
-
-    def act(self, handler):
-        handler.handle_file(handler.full_path)
-
-            
-class case_always_fail(object):
-    '''Base case if nothing else worked.'''
-
-    def test(self, handler):
-        return True
-
-    def act(self, handler):
-        raise ServerExceptions("Unknown object '{0}'".format(handler.path))
 
 
 # HTTPRequestHandler class
 class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
     
-    Cases = [case_no_file(), case_existing_file(), case_always_fail()]
+    Cases = [case_directory_index_file(), case_no_file(), case_existing_file(), case_always_fail()]
 
     # POST
     #def do_POST(self):
@@ -74,19 +45,12 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
             msg = "'{0}' cannot be read: {1}".format(self.path, msg)
             self.handle_error(msg)
 
-    Error_Page = """\
-        <html>
-        <body>
-        <h1>Error accessing {path}</h1>
-        <p>{msg}</p>
-        </body>
-        </html>
-        """
+    Error_Page = "<html><body><h1>Error accessing {path}</h1><p>{msg}</p></body></html>"
         
         # Handle unknown objects.
     def handle_error(self, msg):
         content = self.Error_Page.format(path=self.path, msg=msg)
-        self.send_content(content, 404)
+        self.send_content(bytes(content, 'utf8'), 404)
 
         # Send actual content.
     def send_content(self, content, status=200):
