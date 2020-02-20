@@ -22,6 +22,8 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             # Figure out what exactly is being requested.
+            # os.getcwd() return string wiht current working dir
+            # self.path is the path that is in a request
             self.full_path = os.getcwd() + self.path
 
             # Figure out how to handle it.
