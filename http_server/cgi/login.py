@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 import cgi
+import cgitb
+cgitb.enable()
 
 form = cgi.FieldStorage()
 username = form.getfirst("username", "не задано")
@@ -9,7 +11,7 @@ print("DEBUG \n username is {0} and password is {1}".format(username, password))
 
 print("Content-type: text/html\n")
 print("""<!DOCTYPE HTML>
-        <html>
+      <html>
         <head>
             <meta charset="utf-8">
             <title>Обработка данных форм</title>

@@ -9,11 +9,24 @@ class case_cgi_request(object):
     def test(self, handler):
         return os.path.isfile(handler.full_path.split("?")[0])
 
+    def shell_command(self, handler):
+        command = ""
+        for char in str(handler.path.split("?")[1]):
+            if (char == '&'):
+                command += "'&'"
+            else:
+                command += char
+        return command
+#        print(str(command))
+
+
     def act(self, handler):
         print("Everything alright")
-        os.system("python3 cgi/cgi_login.py " + handler.path.split("?")[1])
+        self.shell_command(handler)
+        os.system("python3 " + str(handler.full_path.split("?")[0]) + " " +  self.shell_command(handler))
+        #print("python3 " + str(handler.full_path.split("?")[0]) + " " +  str(self.shell_command(handler)))
         #print(handler.full_path)
-        #handler.handle_file(handler.full_path.split("?")[0])
+        handler.handle_file(handler.full_path.split("?")[0])
 
 class case_directory_index_file(object):
     '''Serve index.html page for a directory.'''
