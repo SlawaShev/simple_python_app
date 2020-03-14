@@ -1,11 +1,12 @@
-#!/usr/bin/python3
+#!/usr/local/bin/python3
 
 from classes import *
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 
-app_server_ipv4 = "192.168.0.110"
-app_server_port = "80"
+app_server_ipv4 = "192.168.43.224"
+
+app_server_port = "81"
 app_db_ipv4 = "127.0.0.1"
 
 # HTTPRequestHandler class
@@ -22,7 +23,7 @@ class HTTPServer_RequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         try:
             # Figure out what exactly is being requested.
-            # os.getcwd() return string wiht current working dir
+            # os.getcwd() return string with current working dir
             # self.path is the path that is in a request
             self.full_path = os.getcwd() + self.path
 
